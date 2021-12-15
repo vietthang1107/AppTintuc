@@ -4,8 +4,8 @@ from news import views
 
 
 urlpatterns = [
-    path('news/', views.new_list),
-    path('news/<int:pk>', views.new_detail),
+    path('news/', views.NewList.as_view()),
+    path('news/<int:pk>', views.NewDetail.as_view()),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
