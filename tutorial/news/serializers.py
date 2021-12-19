@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from news.models import New
+from django_filters import rest_framework as filters
 
 
 # class NewSerializer(serializers.Serializer):
@@ -20,7 +21,19 @@ from news.models import New
 #         instance.save()
 #         return instance
 
-class NewSerializer(serializers.ModelSerializer):
+class NewListSerializer(serializers.ModelSerializer):
     class Meta:
         model = New
-        fields = ['id', 'title', 'description', 'author']
+        fields = ('id', 'created', 'title', 'description', 'author')
+
+
+class NewListCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = New
+        fields = ('title', 'description', 'author')
+
+
+class NewListSerializerFilter(filters.FilterSet):
+    class Meta:
+        model = New
+        fields = ('id', 'title', 'description', 'author')

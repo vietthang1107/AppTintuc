@@ -1,0 +1,61 @@
+version: "3"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app-api
+    ports:
+      - "8080:8000"
+      - "3030:3000"
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - db
+    networks:
+      - my_network
+    command: python manage.py runserver 0.0.0.0:8000
+  db:
+    image: mysql:8.0
+    container_name: app-db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysqldata:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: my_blogs
+      MYSQL_USER: user_local
+      MYSQL_PASSWORD: 123456
+    networks:
+      - my_network
+    cap_add:
+      - SYS_NICE
+    command: --default-authentication-plugin=mysql_native_password
+  jaeger:
+    image: jaegertracing/all-in-one:1.25
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+      - "14250:14250"
+      - "9411:9411"
+    networks:
+      - my_network
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - miniodata:/data
+    command: server /data --console-address ":9001"
+volumes:
+  mysqldata:
+  miniodata:
+networks:
+  my_network:
+    external: true

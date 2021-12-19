@@ -1,43 +1,60 @@
 from django.shortcuts import render
 from rest_framework import status
-from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import generics
 from django.http import Http404
 from news.models import New
-from news.serializers import NewSerializer
+from news.serializers import NewListSerializer, NewListSerializerFilter, NewListCreateSerializer
+from drf_yasg.utils import swagger_auto_schema
+
 
 # Create your views here.
 
 
-class NewList(APIView):
-    def get(self, request, format=None):
-        news = New.objects.all()
-        serializer = NewSerializer(news, many=True)
-        return Response(serializer.data)
+class NewList(generics.GenericAPIView):
+    queryset = New.objects.all()
+    serializer_class = NewListSerializer
+    serializer_create = NewListCreateSerializer
 
-    def post(self, request, format=None):
-        serializer = NewSerializer(data=request.data)
+    ordering_fields = '__all__'
+    filterset_class = NewListSerializerFilter
+
+    def get(self, request, *args, **kwargs):
+        serializer_render = self.serializer_class
+        queryset = self.filter_queryset(self.get_queryset().filter(**kwargs))
+        serializer = serializer_render(queryset, many=True)
+        return Response(serializer.data, status=200, content_type="application/json")
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_create(data={**request.data, **kwargs})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class NewDetail(APIView):
+class NewDetail(generics.GenericAPIView):
+    queryset = New.objects.all()
+    serializer_class = NewListSerializer
+    ordering_fields = '__all__'
+    filterset_class = NewListSerializerFilter
+
     def get_object(self, pk):
         try:
             return New.objects.get(pk=pk)
         except New.DoesNotExist:
             raise Http404
 
-    def get(self, request, pk, format=None):
-        new = self.get_object(pk)
-        serializer = NewSerializer(new)
+    @swagger_auto_schema(operation_summary='Hello', operation_description='Description')
+    def get(self, request, *args, **kwargs):
+        serializer_render = self.serializer_class
+        queryset = self.filter_queryset(self.get_queryset().filter(**kwargs))
+        serializer = serializer_render(queryset, many=True)
         return Response(serializer.data)
 
     def put(self, request, pk, format=None):
         new = self.get_object(pk)
-        serializer = NewSerializer(new, data=request.data)
+        serializer = NewListSerializer(new, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
