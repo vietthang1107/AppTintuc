@@ -19,14 +19,14 @@ class NewList(generics.GenericAPIView):
     ordering_fields = '__all__'
     filterset_class = NewListSerializerFilter
 
-    @swagger_auto_schema(operation_summary='Danh sách bản tin', operation_description='Mô tả')
+    @swagger_auto_schema(operation_summary='Danh sách bản tin', operation_description='Lấy danh sách bản tin')
     def get(self, request, *args, **kwargs):
         serializer_render = self.serializer_class
         queryset = self.filter_queryset(self.get_queryset().filter(**kwargs))
         serializer = serializer_render(queryset, many=True)
         return Response(serializer.data, status=200, content_type="application/json")
 
-    @swagger_auto_schema(operation_summary='Thêm một bản tin', operation_description='Mô tả')
+    @swagger_auto_schema(operation_summary='Thêm một bản tin', operation_description='Thêm một bản tin vào danh sách')
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_create(data={**request.data, **kwargs})
         if serializer.is_valid():
@@ -47,14 +47,14 @@ class NewDetail(generics.GenericAPIView):
         except New.DoesNotExist:
             raise Http404
 
-    @swagger_auto_schema(operation_summary='Danh sách bản tin theo id', operation_description='Mô tả')
+    @swagger_auto_schema(operation_summary='Chi tiết bản tin', operation_description='Lấy chi tiết bản tin theo id')
     def get(self, request, *args, **kwargs):
         serializer_render = self.serializer_class
         queryset = self.filter_queryset(self.get_queryset().filter(**kwargs))
         serializer = serializer_render(queryset, many=True)
         return Response(serializer.data)
 
-    @swagger_auto_schema(operation_summary='Cập nhật bản tin', operation_description='Mô tả')
+    @swagger_auto_schema(operation_summary='Cập nhật bản tin', operation_description='Cập nhật thông tin bản tin')
     def put(self, request, pk, format=None):
         new = self.get_object(pk)
         serializer = NewListSerializer(new, data=request.data)
@@ -63,7 +63,7 @@ class NewDetail(generics.GenericAPIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @swagger_auto_schema(operation_summary='Xóa bản tin', operation_description='Mô tả')
+    @swagger_auto_schema(operation_summary='Xóa bản tin', operation_description='Xóa bản tin')
     def delete(self, request, pk, format=None):
         new = self.get_object(pk)
         new.delete()
