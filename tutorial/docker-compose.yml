@@ -32,30 +32,10 @@ services:
     cap_add:
       - SYS_NICE
     command: --default-authentication-plugin=mysql_native_password
-  jaeger:
-    image: jaegertracing/all-in-one:1.25
-    ports:
-      - "5775:5775/udp"
-      - "6831:6831/udp"
-      - "6832:6832/udp"
-      - "5778:5778"
-      - "16686:16686"
-      - "14268:14268"
-      - "14250:14250"
-      - "9411:9411"
-    networks:
-      - my_network
-  minio:
-    image: minio/minio
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - miniodata:/data
-    command: server /data --console-address ":9001"
+
 volumes:
-  mysqldata:
-  miniodata:
+  mysqldata: null
+  miniodata: null
 networks:
   my_network:
     external: true

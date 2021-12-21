@@ -24,7 +24,7 @@ from django_filters import rest_framework as filters
 class NewListSerializer(serializers.ModelSerializer):
     class Meta:
         model = New
-        fields = ('id', 'created', 'title', 'description', 'author')
+        fields = ('id', 'dayCreate', 'title', 'description', 'author')
 
 
 class NewListCreateSerializer(serializers.ModelSerializer):

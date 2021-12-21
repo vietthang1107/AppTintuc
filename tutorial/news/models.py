@@ -7,10 +7,10 @@ from django.utils import timezone
 
 class New(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    created = models.DateTimeField(default=timezone.now, editable=False)
+    dayCreate = models.DateTimeField(default=timezone.now, editable=False)
     title = models.CharField(max_length=100, blank=True, default='')
     description = models.TextField(blank=True, null=True, default='')
     author = models.TextField(blank=True, null=True, default='')
 
     class Meta:
-        ordering = ['created']
+        ordering = ['dayCreate']
