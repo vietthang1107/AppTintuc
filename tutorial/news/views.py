@@ -6,11 +6,13 @@ from django.http import Http404
 from news.models import New
 from news.serializers import NewListSerializer, NewListSerializerFilter, NewListCreateSerializer
 from drf_yasg.utils import swagger_auto_schema
+from news.models import Comment
+from news.serializers import CommentCreateSerializer, CommentListSerializer, CommentListSerializerFilter
 
 
 # Create your views here.
 
-
+# New
 class NewList(generics.GenericAPIView):
     queryset = New.objects.all()
     serializer_class = NewListSerializer
@@ -68,3 +70,26 @@ class NewDetail(generics.GenericAPIView):
         new = self.get_object(pk)
         new.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# Comment (chưa hoàn tất)
+class CommentList(generics.GenericAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentListSerializer
+    serializer_create = CommentCreateSerializer
+
+    ordering_fields = '__all__'
+    filterset_class = CommentListSerializerFilter
+
+    def get(self, request, *args, **kwargs):
+        serializer_render = self.serializer_class
+        queryset = self.filter_queryset(self.get_queryset().filter(**kwargs))
+        serializer = serializer_render(queryset, many=True)
+        return Response(serializer.data, status=200, content_type="application/json")
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_create(data={**request.data, **kwargs})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

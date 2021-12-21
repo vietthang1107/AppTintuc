@@ -1,30 +1,14 @@
+from django.db.models import fields
 from rest_framework import serializers
-from news.models import New
+from news.models import New, Comment
 from django_filters import rest_framework as filters
 
 
-# class NewSerializer(serializers.Serializer):
-#     id = serializers.IntegerField(read_only=True)
-#     title = serializers.CharField(
-#         required=False, allow_blank=True, max_length=100)
-#     description = serializers.CharField()
-#     author = serializers.CharField()
-
-#     def create(self, validated_data):
-#         return New.objects.create(**validated_data)
-
-#     def update(self, instance, validated_data):
-#         instance.title = validated_data.get('title', instance.title)
-#         instance.description = validated_data.get(
-#             'description', instance.description)
-#         instance.author = validated_data.get('author', instance.author)
-#         instance.save()
-#         return instance
-
+# New
 class NewListSerializer(serializers.ModelSerializer):
     class Meta:
         model = New
-        fields = ('id', 'dayCreate', 'title', 'description', 'author')
+        fields = ('id', 'date_created', 'title', 'description', 'author')
 
 
 class NewListCreateSerializer(serializers.ModelSerializer):
@@ -37,3 +21,22 @@ class NewListSerializerFilter(filters.FilterSet):
     class Meta:
         model = New
         fields = ('id', 'title', 'description', 'author')
+
+
+# Comment
+class CommentListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ('id', 'new', 'date_created', 'content', 'user_comment')
+
+
+class CommentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ('content', 'user_comment')
+
+
+class CommentListSerializerFilter(filters.FilterSet):
+    class Meta:
+        model = Comment
+        fields = ('id', 'user_comment')
