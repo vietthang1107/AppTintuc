@@ -6,15 +6,22 @@ from django_filters import rest_framework as filters
 
 # New
 class NewListSerializer(serializers.ModelSerializer):
+    comment = serializers.SerializerMethodField()
+
     class Meta:
         model = New
-        fields = ('id', 'date_created', 'title', 'description', 'author')
+        fields = ('id', 'comment', 'date_created',
+                  'title', 'description', 'author')
+
+    def get_comment(self, obj):
+        comment = Comment.objects.filter(new_id=obj.id)
+        return comment
 
 
 class NewListCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = New
-        fields = ('title', 'description', 'author')
+        fields = ('title', 'description', 'author', )
 
 
 class NewListSerializerFilter(filters.FilterSet):
@@ -33,7 +40,7 @@ class CommentListSerializer(serializers.ModelSerializer):
 class CommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ('content', 'user_comment')
+        fields = ('content', 'user_comment', 'new')
 
 
 class CommentListSerializerFilter(filters.FilterSet):
