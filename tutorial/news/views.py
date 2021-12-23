@@ -43,9 +43,9 @@ class NewDetail(generics.GenericAPIView):
     ordering_fields = '__all__'
     filterset_class = NewListSerializerFilter
 
-    def get_object(self, pk):
+    def get_object(self, id):
         try:
-            return New.objects.get(pk=pk)
+            return New.objects.get(id=id)
         except New.DoesNotExist:
             raise Http404
 
@@ -57,8 +57,8 @@ class NewDetail(generics.GenericAPIView):
         return Response(serializer.data)
 
     @swagger_auto_schema(operation_summary='Cập nhật bản tin', operation_description='Cập nhật thông tin bản tin')
-    def put(self, request, pk, format=None):
-        new = self.get_object(pk)
+    def put(self, request, id, format=None):
+        new = self.get_object(id)
         serializer = NewListSerializer(new, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -66,13 +66,13 @@ class NewDetail(generics.GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(operation_summary='Xóa bản tin', operation_description='Xóa bản tin')
-    def delete(self, request, pk, format=None):
-        new = self.get_object(pk)
+    def delete(self, request, id, format=None):
+        new = self.get_object(id)
         new.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# Comment (chưa hoàn tất)
+# Comment
 class CommentList(generics.GenericAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentListSerializer
@@ -81,12 +81,14 @@ class CommentList(generics.GenericAPIView):
     ordering_fields = '__all__'
     filterset_class = CommentListSerializerFilter
 
+    @swagger_auto_schema(operation_summary='Danh sách comment', operation_description='Lấy danh sách comment')
     def get(self, request, *args, **kwargs):
         serializer_render = self.serializer_class
         queryset = self.filter_queryset(self.get_queryset().filter(**kwargs))
         serializer = serializer_render(queryset, many=True)
         return Response(serializer.data, status=200, content_type="application/json")
 
+    @swagger_auto_schema(operation_summary='Thêm một comment', operation_description='Thêm một comment vào tin tức')
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_create(data={**request.data, **kwargs})
         if serializer.is_valid():

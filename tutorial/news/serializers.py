@@ -1,4 +1,4 @@
-from django.db.models import fields
+from django.db.models import fields, JSONField
 from rest_framework import serializers
 from news.models import New, Comment
 from django_filters import rest_framework as filters
@@ -14,8 +14,15 @@ class NewListSerializer(serializers.ModelSerializer):
                   'title', 'description', 'author')
 
     def get_comment(self, obj):
-        comment = Comment.objects.filter(new_id=obj.id)
-        return comment
+        comments = Comment.objects.filter(new_id=obj.id)
+        result = []
+        if comments:
+            for comment in comments:
+                result.append({
+                    'user_comment': comment.user_comment,
+                    'content': comment.content,
+                })
+        return result
 
 
 class NewListCreateSerializer(serializers.ModelSerializer):
